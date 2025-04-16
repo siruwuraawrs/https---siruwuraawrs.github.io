@@ -1,0 +1,103 @@
+<!-- UwU Alert Set for StreamElements / OBS -->
+<!-- Includes: Follow, Sub, Donation, Raid Alerts -->
+
+<div id="alert-container" class="fade-in">
+  <div id="alert-content"></div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Press Start 2P', cursive;
+  color: #fff;
+}
+
+#alert-container {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px 30px;
+  border-radius: 12px;
+  animation: popIn 0.5s ease-out, fadeOut 1s ease-in 4.5s forwards;
+  text-align: center;
+  background: rgba(25, 25, 55, 0.9);
+  border: 3px solid #f0f;
+  box-shadow: 0 0 25px #f0f, 0 0 10px #0ff inset;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.7) translate(-50%, -50%); opacity: 0; }
+  100% { transform: scale(1) translate(-50%, -50%); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+
+.pixel-box {
+  padding: 10px;
+  background: #222;
+  color: #0ff;
+  border: 2px solid #0ff;
+  margin-top: 10px;
+  text-shadow: 1px 1px #000;
+}
+</style>
+
+<audio id="sfx-follow" src="https://example.com/sfx_follow.mp3"></audio>
+<audio id="sfx-sub" src="https://example.com/sfx_sub.mp3"></audio>
+<audio id="sfx-donation" src="https://example.com/sfx_gacha.mp3"></audio>
+<audio id="sfx-raid" src="https://example.com/sfx_raid.mp3"></audio>
+
+<script>
+function playSound(id) {
+  const audio = document.getElementById(id);
+  if (audio) {
+    audio.currentTime = 0;
+    audio.play();
+  }
+}
+
+function setAlert(text, type) {
+  const alertBox = document.getElementById("alert-container");
+  const content = document.getElementById("alert-content");
+  content.innerHTML = text;
+
+  alertBox.classList.remove("fade-in");
+  void alertBox.offsetWidth; // reset animation
+  alertBox.classList.add("fade-in");
+
+  playSound("sfx-" + type);
+}
+
+window.addEventListener('onEventReceived', function (obj) {
+  const listener = obj.detail.listener;
+  const e = obj.detail.event;
+  let text = "";
+  let type = "";
+
+  if (listener === "follower-latest") {
+    text = `<div class='pixel-box'>✨ ${e.name} has joined the UwU guild! ✨</div>`;
+    type = "follow";
+  }
+  else if (listener === "subscriber-latest") {
+    text = `<div class='pixel-box'>🌟 ${e.name} just pledged their soul to the UwUniverse! 🌟</div>`;
+    type = "sub";
+  }
+  else if (listener === "tip-latest") {
+    text = `<div class='pixel-box'>💸 ${e.name} just gave you +1000 simpbucks! 💸</div>`;
+    type = "donation";
+  }
+  else if (listener === "raid-latest") {
+    const viewers = e.amount || 0;
+    text = `<div class='pixel-box'>⚔️ ${e.name} and their army of ${viewers} are invading! ⚔️</div>`;
+    type = "raid";
+  }
+
+  if (text && type) setAlert(text, type);
+});
+</script>
